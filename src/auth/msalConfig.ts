@@ -20,9 +20,18 @@ export const loginRequest = {
   scopes: ["openid", "profile", "User.Read"],
 };
 
+export const apiScope = import.meta.env.VITE_API_SCOPE ?? "";
+
 export type Role = "Admin" | "Operador" | "Cliente";
 
-export function getRoles(idTokenClaims: Record<string, unknown> | undefined): Role[] {
-  const roles = idTokenClaims?.roles;
-  return Array.isArray(roles) ? (roles as Role[]) : [];
+const ROLE_BY_LOWER: Record<string, Role> = {
+  admin: "Admin",
+  operador: "Operador",
+  cliente: "Cliente",
+};
+
+export function getRoles(claims: Record<string, unknown> | undefined): Role[] {
+  const raw = claims?.roles;
+  const list = Array.isArray(raw) ? raw : typeof raw === "string" ? [raw] : [];
+  return list.flatMap((r) => ROLE_BY_LOWER[String(r).toLowerCase()] ?? []);
 }

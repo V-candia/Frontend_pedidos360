@@ -21,7 +21,14 @@ export const router = createBrowserRouter([
     ),
     children: [
       { path: "dashboard", element: <Dashboard /> },
-      { path: "orders", element: <OrdersPage /> },
+      {
+        path: "orders",
+        element: (
+          <RoleGuard allow={["Admin", "Operador", "Cliente"]}>
+            <OrdersPage />
+          </RoleGuard>
+        ),
+      },
       {
         path: "catalog",
         element: (

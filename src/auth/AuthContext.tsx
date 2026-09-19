@@ -6,8 +6,9 @@ export type AuthAccount = { name: string; roles: Role[] };
 export type AuthContextValue = {
   isAuthenticated: boolean;
   account: AuthAccount | null;
-  login: (role?: Role) => void;
+  login: (user?: string) => void | Promise<void>;
   logout: () => void;
+  getToken: () => Promise<string | null>;
 };
 
 export const AuthContext = createContext<AuthContextValue | null>(null);

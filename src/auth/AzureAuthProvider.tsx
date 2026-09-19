@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useMsal, useIsAuthenticated } from "@azure/msal-react";
 import { AuthContext } from "./AuthContext";
-import { getRoles, loginRequest } from "./msalConfig";
+import { apiScope, getRoles, loginRequest } from "./msalConfig";
 
 export function AzureAuthProvider({ children }: { children: ReactNode }) {
   const { instance, accounts } = useMsal();
@@ -18,6 +18,11 @@ export function AzureAuthProvider({ children }: { children: ReactNode }) {
       : null,
     login: () => instance.loginRedirect(loginRequest),
     logout: () => instance.logoutRedirect(),
+    getToken: async () => {
+      if (!account) return null;
+      const res = await instance.acquireTokenSilent({ scopes: [apiScope], account });
+      return res.accessToken;
+    },
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

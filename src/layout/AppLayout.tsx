@@ -1,12 +1,13 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import type { Role } from "../auth/msalConfig";
 
-const links = [
+const links: { to: string; label: string; roles?: Role[] }[] = [
   { to: "/dashboard", label: "Dashboard" },
-  { to: "/orders", label: "Pedidos" },
-  { to: "/catalog", label: "Catálogo" },
-  { to: "/reports", label: "Reportería" },
-  { to: "/audit", label: "Auditoría" },
+  { to: "/orders", label: "Pedidos", roles: ["Admin", "Operador", "Cliente"] },
+  { to: "/catalog", label: "Catálogo", roles: ["Admin", "Operador"] },
+  { to: "/reports", label: "Reportería", roles: ["Admin"] },
+  { to: "/audit", label: "Auditoría", roles: ["Admin"] },
 ];
 
 export function AppLayout() {
@@ -17,7 +18,9 @@ export function AppLayout() {
       <aside className="w-56 shrink-0 border-r border-slate-200 bg-white p-4">
         <div className="mb-6 px-2 text-lg font-semibold text-slate-900">Pedidos360</div>
         <nav className="flex flex-col gap-1">
-          {links.map(({ to, label }) => (
+          {links
+            .filter(({ roles }) => !roles || account?.roles.some((r) => roles.includes(r)))
+            .map(({ to, label }) => (
             <NavLink
               key={to}
               to={to}

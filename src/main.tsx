@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 
-const authMode = import.meta.env.VITE_AUTH_MODE ?? 'mock'
+const authMode = import.meta.env.VITE_AUTH_MODE ?? 'dev'
 
 async function bootstrap() {
   const root = createRoot(document.getElementById('root')!)
@@ -41,13 +41,13 @@ async function bootstrap() {
       </StrictMode>,
     )
   } else {
-    const { MockAuthProvider } = await import('./auth/MockAuthProvider')
+    const { DevAuthProvider } = await import('./auth/DevAuthProvider')
 
     root.render(
       <StrictMode>
-        <MockAuthProvider>
+        <DevAuthProvider>
           <App />
-        </MockAuthProvider>
+        </DevAuthProvider>
       </StrictMode>,
     )
   }

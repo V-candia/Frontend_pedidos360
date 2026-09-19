@@ -2,9 +2,4 @@ services:
   frontend:
     build: .
     ports:
-      - "5173:5173"
-    volumes:
-      - .:/app
-      - /app/node_modules
-    env_file:
-      - .env.local
+      - "5173:80"
