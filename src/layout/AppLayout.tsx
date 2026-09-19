@@ -1,42 +1,56 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { useMsal } from "@azure/msal-react";
-import { getRoles } from "../auth/msalConfig";
+import { useAuth } from "../auth/AuthContext";
+
+const links = [
+  { to: "/dashboard", label: "Dashboard" },
+  { to: "/orders", label: "Pedidos" },
+  { to: "/catalog", label: "Catálogo" },
+  { to: "/reports", label: "Reportería" },
+  { to: "/audit", label: "Auditoría" },
+];
 
 export function AppLayout() {
-  const { instance, accounts } = useMsal();
-  const account = accounts[0];
-  const roles = getRoles(account?.idTokenClaims as Record<string, unknown>);
+  const { account, logout } = useAuth();
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
-      <aside style={{ width: 200, borderRight: "1px solid #ddd", padding: 16 }}>
-        <nav style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <NavLink to="/dashboard">Dashboard</NavLink>
-          <NavLink to="/orders">Pedidos</NavLink>
-          <NavLink to="/catalog">Catálogo</NavLink>
-          <NavLink to="/reports">Reportería</NavLink>
-          <NavLink to="/audit">Auditoría</NavLink>
+    <div className="flex min-h-screen bg-slate-50">
+      <aside className="w-56 shrink-0 border-r border-slate-200 bg-white p-4">
+        <div className="mb-6 px-2 text-lg font-semibold text-slate-900">Pedidos360</div>
+        <nav className="flex flex-col gap-1">
+          {links.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `rounded-md px-3 py-2 text-sm font-medium transition ${
+                  isActive ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100"
+                }`
+              }
+            >
+              {label}
+            </NavLink>
+          ))}
         </nav>
       </aside>
-      <div style={{ flex: 1 }}>
-        <header
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: 16,
-            borderBottom: "1px solid #ddd",
-          }}
-        >
-          <strong>Pedidos360</strong>
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <span>
-              {account?.name ?? account?.username} ({roles.join(", ") || "sin rol"})
+      <div className="flex flex-1 flex-col">
+        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
+          <span className="text-sm text-slate-400">Panel corporativo</span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-slate-700">
+              {account?.name}{" "}
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                {account?.roles.join(", ") || "sin rol"}
+              </span>
             </span>
-            <button onClick={() => instance.logoutRedirect()}>Cerrar sesión</button>
+            <button
+              onClick={logout}
+              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-100"
+            >
+              Cerrar sesión
+            </button>
           </div>
         </header>
-        <main style={{ padding: 24 }}>
+        <main className="flex-1 p-6">
           <Outlet />
         </main>
       </div>

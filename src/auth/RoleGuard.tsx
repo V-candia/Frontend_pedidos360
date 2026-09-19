@@ -1,29 +1,23 @@
 import type { ReactNode } from "react";
-import { useMsal, useIsAuthenticated } from "@azure/msal-react";
 import { Navigate } from "react-router-dom";
-import { getRoles } from "./msalConfig";
+import { useAuth } from "./AuthContext";
 import type { Role } from "./msalConfig";
 
-export function RoleGuard({
-  allow,
-  children,
-}: {
-  allow: Role[];
-  children: ReactNode;
-}) {
-  const isAuthenticated = useIsAuthenticated();
-  const { accounts } = useMsal();
+export function RoleGuard({ allow, children }: { allow: Role[]; children: ReactNode }) {
+  const { isAuthenticated, account } = useAuth();
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
-  const roles = getRoles(accounts[0]?.idTokenClaims as Record<string, unknown>);
+  const roles = account?.roles ?? [];
   const authorized = roles.some((r) => allow.includes(r));
 
   if (!authorized) {
     return (
-      <div style={{ padding: 32 }}>
-        <h2>Sin acceso</h2>
-        <p>Tu rol ({roles.join(", ") || "sin rol asignado"}) no tiene permiso para ver esta sección.</p>
+      <div className="p-8">
+        <h2 className="mb-1 text-lg font-semibold text-slate-900">Sin acceso</h2>
+        <p className="text-sm text-slate-500">
+          Tu rol ({roles.join(", ") || "sin rol asignado"}) no tiene permiso para ver esta sección.
+        </p>
       </div>
     );
   }

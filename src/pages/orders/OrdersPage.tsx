@@ -3,31 +3,38 @@ const STATUSES = ["CREADO", "ACEPTADO", "EN_PREPARACIÓN", "DESPACHADO", "ENTREG
 export function OrdersPage() {
   return (
     <div>
-      <h1>Pedidos</h1>
-      <p>Pendiente de conectar con ms-pedidos360-orders vía API Gateway.</p>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      <h1 className="mb-1 text-2xl font-semibold text-slate-900">Pedidos</h1>
+      <p className="mb-4 text-sm text-slate-500">
+        Pendiente de conectar con ms-pedidos360-orders vía API Gateway.
+      </p>
+      <div className="mb-4 flex flex-wrap gap-2">
         {STATUSES.map((s) => (
-          <span key={s} style={{ border: "1px solid #ccc", borderRadius: 4, padding: "4px 8px" }}>
+          <span
+            key={s}
+            className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-600"
+          >
             {s}
           </span>
         ))}
       </div>
-      <table style={{ marginTop: 16, width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            <th style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>ID</th>
-            <th style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>Cliente</th>
-            <th style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td colSpan={3} style={{ padding: 16, color: "#888" }}>
-              Sin datos — backend no disponible.
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-slate-50 text-slate-500">
+            <tr>
+              <th className="px-4 py-2 font-medium">ID</th>
+              <th className="px-4 py-2 font-medium">Cliente</th>
+              <th className="px-4 py-2 font-medium">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colSpan={3} className="px-4 py-8 text-center text-slate-400">
+                Sin datos — backend no disponible.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

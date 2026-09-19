@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom";
-import { useIsAuthenticated } from "@azure/msal-react";
+import { useAuth } from "../auth/AuthContext";
 
 export function AuthCallback() {
-  const isAuthenticated = useIsAuthenticated();
+  const { isAuthenticated } = useAuth();
   return <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />;
 }
