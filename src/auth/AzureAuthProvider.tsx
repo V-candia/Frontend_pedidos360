@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { InteractionRequiredAuthError } from "@azure/msal-browser";
 import { useMsal, useIsAuthenticated } from "@azure/msal-react";
 import { AuthContext } from "./AuthContext";
 import { apiScope, getRoles, loginRequest } from "./msalConfig";
@@ -20,8 +21,13 @@ export function AzureAuthProvider({ children }: { children: ReactNode }) {
     logout: () => instance.logoutRedirect(),
     getToken: async () => {
       if (!account) return null;
-      const res = await instance.acquireTokenSilent({ scopes: [apiScope], account });
-      return res.accessToken;
+      try {
+        return (await instance.acquireTokenSilent({ scopes: [apiScope], account })).accessToken;
+      } catch (e) {
+        if (!(e instanceof InteractionRequiredAuthError)) throw e;
+        await instance.acquireTokenRedirect({ scopes: [apiScope], account }); // sesión vencida o sin consentimiento
+        return null;
+      }
     },
   };
 

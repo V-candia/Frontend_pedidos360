@@ -16,11 +16,12 @@ export const msalConfig: Configuration = {
   },
 };
 
-export const loginRequest = {
-  scopes: ["openid", "profile", "User.Read"],
-};
-
 export const apiScope = import.meta.env.VITE_API_SCOPE ?? "";
+
+// El scope de la API va en el login para que el consentimiento ocurra ahí y no falle acquireTokenSilent después.
+export const loginRequest = {
+  scopes: ["openid", "profile", "User.Read", ...(apiScope ? [apiScope] : [])],
+};
 
 export type Role = "Admin" | "Operador" | "Cliente";
 
