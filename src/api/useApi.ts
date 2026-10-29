@@ -25,9 +25,7 @@ export function useApi() {
         const body = await res.json().catch(() => null);
         throw new Error(body?.message ?? `Error ${res.status}`);
       }
-      // 202/204 sin body (ej. POST de factura) -> undefined en vez de romper en res.json()
-      const text = await res.text();
-      return (text ? JSON.parse(text) : undefined) as T;
+      return res.status === 204 ? (undefined as T) : ((await res.json()) as T);
     },
     [getToken, logout],
   );
