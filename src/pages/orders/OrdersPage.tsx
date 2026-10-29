@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../../auth/AuthContext";
-import { useApi, useApiQuery } from "../../api/useApi";
+import { API_BASE, useApi, useApiQuery } from "../../api/useApi";
 import { STATUS_FLOW } from "../../api/types";
 import type { Order, OrderStatus, Product } from "../../api/types";
 import { OrderStatusBadge } from "../../components/OrderStatusBadge";
@@ -10,8 +10,9 @@ const nextStatus = (s: OrderStatus) => STATUS_FLOW[STATUS_FLOW.indexOf(s as (typ
 const isTerminal = (s: OrderStatus) => s === "ENTREGADO" || s === "CANCELADO";
 
 export function OrdersPage() {
-  const { account } = useAuth();
+  const { account, getToken, logout } = useAuth();
   const api = useApi();
+  const isAdmin = account?.roles.includes("Admin") ?? false;
   const canManage = account?.roles.some((r) => r === "Operador" || r === "Admin") ?? false;
   const { data: orders, error, loading, reload } = useApiQuery<Order[]>("/api/orders");
   const [showForm, setShowForm] = useState(false);
@@ -25,6 +26,33 @@ export function OrdersPage() {
     } catch (e) {
       setActionError((e as Error).message);
     }
+  }
+
+  async function generateInvoice(id: string) {
+    setActionError(null);
+    try {
+      await api(`/api/orders/${id}/invoice`, { method: "POST" });
+    } catch (e) {
+      setActionError((e as Error).message);
+    }
+  }
+
+  // Fetch aparte: el endpoint devuelve el PDF en bytes y useApi siempre parsea JSON.
+  async function downloadInvoice(id: string) {
+    setActionError(null);
+    const token = await getToken();
+    const res = await fetch(`${API_BASE}/api/invoices/${id}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (res.status === 401) return logout();
+    if (res.status === 404) return setActionError("Factura aún no generada");
+    if (!res.ok) return setActionError(`Error ${res.status}`);
+    const url = URL.createObjectURL(await res.blob());
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `factura-${id}.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   return (
@@ -102,6 +130,22 @@ export function OrdersPage() {
                           >
                             Cancelar
                           </button>
+                        )}
+                        {isAdmin && o.status === "ENTREGADO" && (
+                          <>
+                            <button
+                              onClick={() => generateInvoice(o.id)}
+                              className="rounded-md border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+                            >
+                              Generar factura
+                            </button>
+                            <button
+                              onClick={() => downloadInvoice(o.id)}
+                              className="rounded-md border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+                            >
+                              Descargar factura
+                            </button>
+                          </>
                         )}
                       </div>
                     </td>

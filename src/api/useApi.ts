@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8090";
+export const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8090";
 
 export function useApi() {
   const { getToken, logout } = useAuth();
@@ -25,7 +25,9 @@ export function useApi() {
         const body = await res.json().catch(() => null);
         throw new Error(body?.message ?? `Error ${res.status}`);
       }
-      return res.status === 204 ? (undefined as T) : ((await res.json()) as T);
+      // 202/204 sin body (ej. POST de factura) -> undefined en vez de romper en res.json()
+      const text = await res.text();
+      return (text ? JSON.parse(text) : undefined) as T;
     },
     [getToken, logout],
   );
